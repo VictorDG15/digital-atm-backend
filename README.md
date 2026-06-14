@@ -69,6 +69,13 @@ mvn spring-boot:run
 http://localhost:8080/swagger-ui/index.html
 ```
 
+## Evidencia de Swagger
+
+La siguiente captura muestra el backend en ejecución y la documentación de la
+API disponible desde Swagger UI:
+
+![Swagger UI del backend Digital ATM](src/main/resources/image/doc.png)
+
 ## Configuración de base de datos
 
 La configuración por defecto en `src/main/resources/application.yml` usa variables de entorno con valores de fallback:
@@ -200,21 +207,6 @@ Transferencia:
 ```txt
 GET /api/admin/accounts
 GET /api/admin/users
-GET /api/admin/transactions
-GET /api/admin/audit-logs
-```
-
-## Nota para portafolio
-
-Este proyecto puede presentarse como un backend de banca digital completo para un portafolio técnico. Destaca:
-
-- arquitectura REST segura
-- uso de JWT y roles
-- integración con PostgreSQL y migraciones Flyway
-- documentación automática con Swagger
-- pruebas unitarias y manejo de errores centralizado
-- despliegue local con Docker Compose
-
 GET /api/admin/transactions
 GET /api/admin/audit-logs
 ```
