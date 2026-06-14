@@ -1,0 +1,225 @@
+{
+  "info": {
+    "name": "Digital ATM Backend",
+    "description": "Colección para probar digital-atm-backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "token", "value": "" },
+    { "key": "accountId", "value": "1" },
+    { "key": "cardId", "value": "1" },
+    { "key": "targetAccountNumber", "value": "100000000002" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login USER",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('token', json.accessToken);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usernameOrEmail\": \"yordi\",\n  \"password\": \"password\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Victor\",\n  \"lastName\": \"Diaz\",\n  \"username\": \"victor\",\n  \"email\": \"victor@mail.com\",\n  \"password\": \"secret123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register"
+          }
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "url": "{{baseUrl}}/api/users/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Accounts",
+      "item": [
+        {
+          "name": "Create Account",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"type\": \"SAVINGS\",\n  \"initialBalance\": 300.00\n}" },
+            "url": "{{baseUrl}}/api/accounts"
+          }
+        },
+        {
+          "name": "My Accounts",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "url": "{{baseUrl}}/api/accounts/my"
+          }
+        },
+        {
+          "name": "Balance",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "url": "{{baseUrl}}/api/accounts/{{accountId}}/balance"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cards",
+      "item": [
+        {
+          "name": "Create Card",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"accountId\": {{accountId}},\n  \"pin\": \"1234\"\n}" },
+            "url": "{{baseUrl}}/api/cards"
+          }
+        },
+        {
+          "name": "Block Card",
+          "request": {
+            "method": "PATCH",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "url": "{{baseUrl}}/api/cards/{{cardId}}/block"
+          }
+        }
+      ]
+    },
+    {
+      "name": "ATM",
+      "item": [
+        {
+          "name": "Deposit",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"accountId\": {{accountId}},\n  \"amount\": 100.00,\n  \"idempotencyKey\": \"dep-{{$timestamp}}\",\n  \"description\": \"Depósito desde Postman\"\n}" },
+            "url": "{{baseUrl}}/api/atm/deposit"
+          }
+        },
+        {
+          "name": "Withdraw",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"accountId\": {{accountId}},\n  \"cardId\": {{cardId}},\n  \"pin\": \"1234\",\n  \"amount\": 50.00,\n  \"idempotencyKey\": \"wd-{{$timestamp}}\",\n  \"description\": \"Retiro desde Postman\"\n}" },
+            "url": "{{baseUrl}}/api/atm/withdraw"
+          }
+        },
+        {
+          "name": "Transfer",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"sourceAccountId\": {{accountId}},\n  \"cardId\": {{cardId}},\n  \"pin\": \"1234\",\n  \"targetAccountNumber\": \"{{targetAccountNumber}}\",\n  \"amount\": 75.00,\n  \"idempotencyKey\": \"trf-{{$timestamp}}\",\n  \"description\": \"Transferencia desde Postman\"\n}" },
+            "url": "{{baseUrl}}/api/atm/transfer"
+          }
+        },
+        {
+          "name": "Transactions",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "url": "{{baseUrl}}/api/atm/transactions"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Admin Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('token', json.accessToken);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"usernameOrEmail\": \"admin\",\n  \"password\": \"password\"\n}" },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "All Users",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "url": "{{baseUrl}}/api/admin/users"
+          }
+        },
+        {
+          "name": "All Accounts",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "url": "{{baseUrl}}/api/admin/accounts"
+          }
+        },
+        {
+          "name": "All Transactions",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "url": "{{baseUrl}}/api/admin/transactions"
+          }
+        },
+        {
+          "name": "Audit Logs",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "url": "{{baseUrl}}/api/admin/audit-logs"
+          }
+        }
+      ]
+    }
+  ]
+}

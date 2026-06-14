@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: digital-atm-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: digital_atm
+      POSTGRES_USER: digital_atm
+      POSTGRES_PASSWORD: digital_atm
+    ports:
+      - "5433:5432"
+    volumes:
+      - digital_atm_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U digital_atm -d digital_atm"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - digital-atm-network
+
+  app:
+    build: .
+    container_name: digital-atm-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/digital_atm
+      DB_USERNAME: digital_atm
+      DB_PASSWORD: digital_atm
+      SERVER_PORT: 8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - digital-atm-network
+
+networks:
+  digital-atm-network:
+    driver: bridge
+
+volumes:
+  digital_atm_pgdata:
